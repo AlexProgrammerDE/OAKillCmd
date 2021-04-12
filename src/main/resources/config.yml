@@ -1,0 +1,4 @@
+# Time is in seconds!
+cooldownmessage: "&cYou are on cooldown!"
+nospawntime: 10
+spawntime: 6000
