@@ -2,5 +2,5 @@ name: OAKillCmd
 version: ${project.version}
 main: net.pistonmaster.oakillcmd.OAKillCmd
 api-version: 1.16
-authors: [ AlexProgrammerDE ]
+author: AlexProgrammerDE
 description: Kill, but with cooldown!
