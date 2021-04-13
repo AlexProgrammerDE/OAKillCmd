@@ -8,15 +8,18 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * Some code stolen from: https://www.spigotmc.org/resources/oldschoolkill.4047/
  * :D
  */
 public final class OAKillCmd extends JavaPlugin implements Listener {
-    private final List<Player> onCoolDown = new ArrayList<>();
+    private final Map<UUID, Instant> onCoolDown = new HashMap<>();
 
     @Override
     public void onEnable() {
@@ -36,8 +39,8 @@ public final class OAKillCmd extends JavaPlugin implements Listener {
         }
 
         Player player = event.getPlayer();
-        if (onCoolDown.contains(player)) {
-            player.sendMessage(ChatColor.translateAlternateColorCodes('&', getConfig().getString("cooldownmessage")));
+        if (onCoolDown.containsKey(player.getUniqueId())) {
+            sendCoolDownMessage(player);
             return;
         }
 
@@ -47,17 +50,32 @@ public final class OAKillCmd extends JavaPlugin implements Listener {
 
         player.setHealth(0);
         event.setCancelled(true);
+        long timeToWait = getTimeForPlayer(player);
 
-        onCoolDown.add(player);
+        onCoolDown.put(player.getUniqueId(), Instant.now().plusSeconds(player.getBedSpawnLocation() == null ? getNoSpawnTime() : getSpawnTime()));
 
-        getServer().getScheduler().runTaskLaterAsynchronously(this, () -> onCoolDown.remove(player), getTimeForPlayer(player));
+        getServer().getScheduler().runTaskLaterAsynchronously(this, () -> onCoolDown.remove(player.getUniqueId()), timeToWait);
     }
 
     private long getTimeForPlayer(Player player) {
         if (player.getBedSpawnLocation() == null) {
-            return getConfig().getLong("nospawntime") * 20;
+            return getNoSpawnTime() * 20;
         } else {
-            return getConfig().getLong("spawntime") * 20;
+            return getSpawnTime() * 20;
         }
+    }
+
+    private long getNoSpawnTime() {
+        return getConfig().getLong("nospawntime");
+    }
+
+    private long getSpawnTime() {
+        return getConfig().getLong("spawntime");
+    }
+
+    private void sendCoolDownMessage(Player player) {
+        String msg = ChatColor.translateAlternateColorCodes('&', player.getBedSpawnLocation() == null ? getConfig().getString("nospawnmessage") : getConfig().getString("spawnmessage"));
+
+        player.sendMessage(msg.replace("%time%", String.valueOf(Duration.between(Instant.now(), onCoolDown.get(player.getUniqueId())).getSeconds())));
     }
 }

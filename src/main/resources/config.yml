@@ -1,4 +1,5 @@
 # Time is in seconds!
-cooldownmessage: "&cYou are on cooldown!"
+nospawnmessage: "&cYou can /kill again in %time%"
+spawnmessage: "&cYou have a bed, you can /kill again in %time%"
 nospawntime: 10
-spawntime: 6000
+spawntime: 300
