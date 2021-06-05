@@ -39,17 +39,21 @@ public final class OAKillCmd extends JavaPlugin implements Listener {
         }
 
         Player player = event.getPlayer();
-        if (onCoolDown.containsKey(player.getUniqueId())) {
-            sendCoolDownMessage(player);
-            return;
-        }
-
         if (player.hasPermission("minecraft.command.kill")) {
             return;
         }
 
-        player.setHealth(0);
         event.setCancelled(true);
+        if (onCoolDown.containsKey(player.getUniqueId())) {
+            if (Duration.between(Instant.now(), onCoolDown.get(player.getUniqueId())).getSeconds() <= 0) {
+                onCoolDown.remove(player.getUniqueId());
+            } else {
+                sendCoolDownMessage(player);
+                return;
+            }
+        }
+
+        player.setHealth(0);
         long timeToWait = getTimeForPlayer(player);
 
         onCoolDown.put(player.getUniqueId(), Instant.now().plusSeconds(player.getBedSpawnLocation() == null ? getNoSpawnTime() : getSpawnTime()));
