@@ -4,3 +4,8 @@ main: net.pistonmaster.oakillcmd.OAKillCmd
 api-version: 1.13
 author: AlexProgrammerDE
 description: Kill, but with cooldown!
+
+commands:
+  kill:
+    description: Command to kill yourself.
+    usage: /kill
